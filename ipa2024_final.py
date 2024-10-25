@@ -9,7 +9,8 @@
 import requests
 import json
 import time
-import restconf_final>
+import restconf_final
+import os
 
 #######################################################################################
 # 2. Assign the Webex access token to the variable ACCESS_TOKEN using environment variables.
@@ -96,28 +97,31 @@ while True:
         
 # 6. Complete the code to post the message to the Webex Teams room.
 
-        # The Webex Teams POST JSON data for command showrun
-        # - "roomId" is is ID of the selected room
-        # - "text": is always "show running config"
-        # - "files": is a tuple of filename, fileobject, and filetype.
+#         The Webex Teams POST JSON data for command showrun
+#         - "roomId" is is ID of the selected room
+#         - "text": is always "show running config"
+#         - "files": is a tuple of filename, fileobject, and filetype.
 
-        # the Webex Teams HTTP headers, including the Authoriztion and Content-Type
-        
-        # Prepare postData and HTTPHeaders for command showrun
-        # Need to attach file if responseMessage is 'ok'; 
-        # Read Send a Message with Attachments Local File Attachments
-        # https://developer.webex.com/docs/basics for more detail
+#         the Webex Teams HTTP headers, including the Authoriztion and Content-Type
+        postHTTPHeaders = {
+            "Authorization": ACCESS_TOKEN,
+            "Content-Type": "application/json",
+        }
+#         Prepare postData and HTTPHeaders for command showrun
+#         Need to attach file if responseMessage is 'ok'; 
+#         Read Send a Message with Attachments Local File Attachments
+#         https://developer.webex.com/docs/basics for more detail
 
         if command == "showrun" and responseMessage == 'ok':
-            filename = "<!!!REPLACEME with show run filename and path!!!>"
-            fileobject = <!!!REPLACEME with open file!!!>
-            filetype = "<!!!REPLACEME with Content-type of the file!!!>"
+            filename = "<path_to_show_run_file>"  # Replace with the path to the show run file
+            fileobject = open(filename, 'rb')  # Open the file in binary read mode
+            filetype = "text/plain"  # Replace with the appropriate Content-Type of the file
             postData = {
-                "roomId": <!!!REPLACEME!!!>,
+                "roomId": roomId,
                 "text": "show running config",
-                "files": (<!!!REPLACEME!!!>, <!!!REPLACEME!!!>, <!!!REPLACEME!!!>),
+                "files": (filename, fileobject, filetype),
             }
-            postData = MultipartEncoder(<!!!REPLACEME!!!>)
+            postData = MultipartEncoder(fields=postData)
             HTTPHeaders = {
             "Authorization": ACCESS_TOKEN,
             "Content-Type": "application/json",
@@ -125,7 +129,6 @@ while True:
         # other commands only send text, or no attached file.
         else:
             postData = {"roomId": roomIdToGetMessages, "text": responseMessage}
-            postData = json.dumps(postData)
 
             # the Webex Teams HTTP headers, including the Authoriztion and Content-Type
             HTTPHeaders = {"Authorization": ACCESS_TOKEN, "Content-Type": "application/json"}   
